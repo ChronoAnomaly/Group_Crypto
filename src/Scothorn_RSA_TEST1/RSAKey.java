@@ -127,7 +127,8 @@ public abstract class RSAKey implements RSAConstants, RSABaseInterface
         
         return PS;
     }
-    
+
+    /* TODO Find out what this method is doing */
     /** Reshapes a byte array into an array of byte arrays. */
     protected byte[][] reshape(byte[] inBytes, int colSize) {
         if (colSize < 1) {

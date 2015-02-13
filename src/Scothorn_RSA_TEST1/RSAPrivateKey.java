@@ -61,7 +61,7 @@ public class RSAPrivateKey extends RSAKey
         if (isNull(sourceBytes)) {
             return false;
         }
-        
+        /* TODO Read through and find out how it works and see how it interacts with the reshape method. */
         int k = getModulusByteSize();
         BigInteger c, m;
         byte[] EB, M;
