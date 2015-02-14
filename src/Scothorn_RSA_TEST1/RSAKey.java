@@ -3,6 +3,11 @@ package Scothorn_RSA_TEST1;
 import java.math.BigInteger;
 import java.io.*;
 import java.util.Random;
+/**
+ * Code originally from  https://github.com/rhgrant10/RSA
+ * Author: Rob Grant
+ * retrieved on 2015/2/10
+ */
 
 /**
  * Abstract class representing common features of RSA keys.

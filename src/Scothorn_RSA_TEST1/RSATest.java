@@ -3,6 +3,12 @@ package Scothorn_RSA_TEST1;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+/**
+ * Code originally from  https://github.com/rhgrant10/RSA
+ * Author: Rob Grant
+ * retrieved on 2015/2/10
+ */
+
 
 //Copied from git hub
 

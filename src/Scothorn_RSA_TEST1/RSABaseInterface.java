@@ -1,6 +1,12 @@
 package Scothorn_RSA_TEST1;
 
 /**
+ * Code originally from  https://github.com/rhgrant10/RSA
+ * Author: Rob Grant
+ * retrieved on 2015/2/10
+ */
+
+/**
  * Write a description of interface RSABaseInterface here.
  * 
  * @author Rob

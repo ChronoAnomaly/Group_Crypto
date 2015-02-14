@@ -2,6 +2,12 @@ package Scothorn_RSA_TEST1;
 
 import java.math.BigInteger;
 import java.io.*;
+/**
+ * Code originally from  https://github.com/rhgrant10/RSA
+ * Author: Rob Grant
+ * retrieved on 2015/2/10
+ */
+
 
 /**
  * Class representing a public RSA key.

@@ -2,6 +2,12 @@ package Scothorn_RSA_TEST1;
 
 import java.math.BigInteger;
 /**
+ * Code originally from  https://github.com/rhgrant10/RSA
+ * Author: Rob Grant
+ * retrieved on 2015/2/10
+ */
+
+/**
  * Interface providing often used BigInteger constants.
  * 
  * @author Rob
