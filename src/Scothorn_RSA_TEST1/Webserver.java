@@ -56,5 +56,19 @@ final class KeyRequest implements Runnable
 
     private void processRequest() throws Exception {
 
+        // Get a reference to the socket's input and output streams.
+        InputStream is = socket.getInputStream();
+        DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+
+        // Set up input stream filters.
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+        // Get the request line of the message.
+        String requestLine = br.readLine();
+
+        // Extrace the command from the request line.
+        StringTokenizer tokens = new StringTokenizer(requestLine);
+        tokens.nextToken();
+        String fileName = tokens.nextToken();
     }
 }

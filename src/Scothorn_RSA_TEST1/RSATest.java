@@ -1,8 +1,9 @@
 package Scothorn_RSA_TEST1;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
+import java.rmi.UnknownHostException;
+
 /**
  * Code originally from  https://github.com/rhgrant10/RSA
  * Author: Rob Grant
@@ -16,7 +17,7 @@ public class RSATest {
 	private static int TESTS_PASS = 0;
 	private static int TEST_ERROR = 1;
 	private static int INCORRECT_INVOCATION = 127;
-	
+
 	/**
 	 * @param args
 	 */
@@ -140,4 +141,27 @@ public class RSATest {
 
         return bytes;
     }
+
+	private static void connect(File fileName) {
+
+		Socket clientSocket = null;
+		BufferedReader controlReader = null;
+		DataOutputStream controlWriter = null;
+		try {
+			// establish the client socket
+			clientSocket = new Socket("localhost", 55573);
+
+			// get references to the socket input and output streams
+			InputStream is = clientSocket.getInputStream();
+			controlWriter = new DataOutputStream(clientSocket.getOutputStream());
+
+			controlReader = new BufferedReader(new InputStreamReader(is));
+		} catch (UnknownHostException ex) {
+			ex.printStackTrace();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+
+
+	}
 }
