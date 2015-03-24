@@ -15,11 +15,11 @@ public class Webserver {
 
         ServerSocket serverSocket = new ServerSocket(port);
 
+        System.out.println("Server waiting for connection: ");
         while (true) {
             // Listen for a TCP connection request.
             Socket clientSocket = serverSocket.accept();
 
-            // TODO: implement file transfer
 
             // Construct an object to process key request message.
             KeyRequest request = new KeyRequest(clientSocket);
@@ -66,9 +66,24 @@ final class KeyRequest implements Runnable
         // Get the request line of the message.
         String requestLine = br.readLine();
 
-        // Extrace the command from the request line.
+        // Extract the command from the request line.
         StringTokenizer tokens = new StringTokenizer(requestLine);
-        tokens.nextToken();
+//        tokens.nextToken();
         String fileName = tokens.nextToken();
+
+        System.out.println(fileName);
+    }
+
+    private static void sendBytes(FileInputStream fis, OutputStream os)
+            throws Exception {
+
+        // Construct a 1k buffer to hold bytes on their way to the socket.
+        byte[] buffer = new byte[1024];
+        int bytes = 0;
+
+        // Copy requested file into the socket's output stream.
+        while ((bytes = fis.read(buffer)) != -1) {
+            os.write(buffer, 0, bytes);
+        }
     }
 }

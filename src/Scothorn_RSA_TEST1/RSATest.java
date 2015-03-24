@@ -79,6 +79,8 @@ public class RSATest {
 		if (status == RSATest.TESTS_PASS) { 
 			System.out.println("All tests passed!");
 		}
+
+		connect();
 		System.exit(status);
 	}
 	
@@ -142,20 +144,34 @@ public class RSATest {
         return bytes;
     }
 
-	private static void connect(File fileName) {
+	private static void connect() {
 
 		Socket clientSocket = null;
 		BufferedReader controlReader = null;
 		DataOutputStream controlWriter = null;
+		int port = 55573;
+		String command = null;
+
 		try {
 			// establish the client socket
-			clientSocket = new Socket("localhost", 55573);
+			clientSocket = new Socket("localhost", port);
 
 			// get references to the socket input and output streams
 			InputStream is = clientSocket.getInputStream();
 			controlWriter = new DataOutputStream(clientSocket.getOutputStream());
 
 			controlReader = new BufferedReader(new InputStreamReader(is));
+
+			// testing the server
+			controlWriter.writeBytes("Testing server function.");
+
+
+
+			// close the connection
+			controlReader.close();
+			controlWriter.close();
+			clientSocket.close();
+
 		} catch (UnknownHostException ex) {
 			ex.printStackTrace();
 		} catch (IOException ex) {
