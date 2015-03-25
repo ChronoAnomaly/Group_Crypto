@@ -69,9 +69,16 @@ final class KeyRequest implements Runnable
         // Extract the command from the request line.
         StringTokenizer tokens = new StringTokenizer(requestLine);
 //        tokens.nextToken();
-        String fileName = tokens.nextToken();
+        String message = null;
+        int count = tokens.countTokens();
+            message = tokens.nextToken();
 
-        System.out.println(fileName);
+        for (int i = 1; i < count; i++) {
+            message += " " + tokens.nextToken();
+
+        }
+
+        System.out.println(message);
     }
 
     private static void sendBytes(FileInputStream fis, OutputStream os)
