@@ -10,13 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * @author JavaDigest
@@ -32,12 +30,12 @@ public class EncryptionUtil {
     /**
      * String to hold the name of the private key file.
      */
-    public static final String PRIVATE_KEY_FILE = "C:/keys/private.key";
+    public static final String PRIVATE_KEY_FILE = "private.key";
 
     /**
      * String to hold name of the public key file.
      */
-    public static final String PUBLIC_KEY_FILE = "C:/keys/public.key";
+    public static final String PUBLIC_KEY_FILE = "public.key";
 
     /**
      * Generate key which contains a pair of private and public key using 1024
@@ -149,6 +147,25 @@ public class EncryptionUtil {
         }
 
         return new String(dectyptedText);
+    }
+
+    /*
+    ===========================================================================
+    functions using files
+    ===========================================================================
+     */
+
+    public static void encrypt(File in, File out) throws IOException, InvalidKeyException {
+
+        try {
+            final Cipher ciper = Cipher.getInstance(ALGORITHM);
+
+            CipherInputStream is = new CipherInputStream(new FileInputStream(in));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
