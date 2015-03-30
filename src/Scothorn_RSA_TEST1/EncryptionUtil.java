@@ -43,7 +43,7 @@ public class EncryptionUtil {
     public static void generateKey() {
         try {
             final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
-            keyGen.initialize(2048);
+            keyGen.initialize(1024);
             final KeyPair key = keyGen.generateKeyPair();
 
             File privateKeyFile = new File(PRIVATE_KEY_FILE);
@@ -150,16 +150,21 @@ public class EncryptionUtil {
     ===========================================================================
      */
 
-    public static void encrypt(File in, File out) throws IOException, InvalidKeyException {
+    public static void encrypt(File in, File out, PublicKey key) throws IOException, InvalidKeyException {
 
         try {
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
 
             FileInputStream is = new FileInputStream(in);
             CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), cipher);
 
-            copy(is, os);
-
+//            copy(is, os);
+            int i;
+            byte[] b = new byte[1024];
+            while( (i = is.read(b)) != -1) {
+                os.write(b, 0, i);
+            }
             os.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -168,16 +173,21 @@ public class EncryptionUtil {
         }
     }
 
-    public static void decrypt(File in, File out) throws IOException {
+    public static void decrypt(File in, File out, PrivateKey key) throws IOException, InvalidKeyException {
 
         try {
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, key);
 
             CipherInputStream is = new CipherInputStream(new FileInputStream(in), cipher);
             FileOutputStream os = new FileOutputStream(out);
 
-            copy(is, os);
-
+//            copy(is, os);
+            int i;
+            byte[] b = new byte[1024];
+            while( (i = is.read(b)) != -1) {
+                os.write(b, 0, i);
+            }
             is.close();
             os.close();
 
@@ -228,6 +238,17 @@ public class EncryptionUtil {
             System.out.println("Original: " + originalText);
             System.out.println("Encrypted: " +cipherText.toString());
             System.out.println("Decrypted: " + plainText);
+
+            System.out.println("Testing file encrypting: ");
+            File input = new File("tester.txt");
+            File output = new File("Encrypted Output.txt");
+
+            encrypt(input, output, publicKey);
+
+            File deOut = new File("Decrypted Output.txt");
+
+            decrypt(output, deOut, privateKey);
+
 
         } catch (Exception e) {
             e.printStackTrace();
