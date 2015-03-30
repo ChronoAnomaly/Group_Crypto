@@ -3,17 +3,12 @@ package Scothorn_RSA_TEST1;
 /**
  * Created by brett on 2015-03-26.
  */
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.security.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 
 /**
@@ -30,12 +25,12 @@ public class EncryptionUtil {
     /**
      * String to hold the name of the private key file.
      */
-    public static final String PRIVATE_KEY_FILE = "private.key";
+    public static final String PRIVATE_KEY_FILE = "./keys/private.key";
 
     /**
      * String to hold name of the public key file.
      */
-    public static final String PUBLIC_KEY_FILE = "public.key";
+    public static final String PUBLIC_KEY_FILE = "./keys/public.key";
 
     /**
      * Generate key which contains a pair of private and public key using 1024
@@ -48,7 +43,7 @@ public class EncryptionUtil {
     public static void generateKey() {
         try {
             final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
-            keyGen.initialize(1024);
+            keyGen.initialize(2048);
             final KeyPair key = keyGen.generateKeyPair();
 
             File privateKeyFile = new File(PRIVATE_KEY_FILE);
@@ -158,9 +153,14 @@ public class EncryptionUtil {
     public static void encrypt(File in, File out) throws IOException, InvalidKeyException {
 
         try {
-            final Cipher ciper = Cipher.getInstance(ALGORITHM);
+            final Cipher cipher = Cipher.getInstance(ALGORITHM);
 
-            CipherInputStream is = new CipherInputStream(new FileInputStream(in));
+            FileInputStream is = new FileInputStream(in);
+            CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), cipher);
+
+            copy(is, os);
+
+            os.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
@@ -168,6 +168,35 @@ public class EncryptionUtil {
         }
     }
 
+    public static void decrypt(File in, File out) throws IOException {
+
+        try {
+            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+            CipherInputStream is = new CipherInputStream(new FileInputStream(in), cipher);
+            FileOutputStream os = new FileOutputStream(out);
+
+            copy(is, os);
+
+            is.close();
+            os.close();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void copy(InputStream is, OutputStream os) throws IOException {
+
+        int i;
+        byte[] b = new byte[1024];
+        while( (i = is.read(b)) != -1) {
+            os.write(b, 0, i);
+        }
+    }
     /**
      * Test the EncryptionUtil
      */
