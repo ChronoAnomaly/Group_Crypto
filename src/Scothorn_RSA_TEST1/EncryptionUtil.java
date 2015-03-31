@@ -6,10 +6,7 @@ package Scothorn_RSA_TEST1;
 import java.io.*;
 import java.security.*;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 
 /**
  * @author JavaDigest
@@ -31,6 +28,8 @@ public class EncryptionUtil {
      * String to hold name of the public key file.
      */
     public static final String PUBLIC_KEY_FILE = "./keys/public.key";
+
+    private static final int BLOCK_SIZE = 100;
 
     /**
      * Generate key which contains a pair of private and public key using 1024
@@ -161,14 +160,21 @@ public class EncryptionUtil {
 
 //            copy(is, os);
             int i;
-            byte[] b = new byte[1024];
+            byte[] b = new byte[BLOCK_SIZE];
             while( (i = is.read(b)) != -1) {
                 os.write(b, 0, i);
+                cipher.update(b);
             }
+            cipher.doFinal();
+            is.close();
             os.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         }
     }
@@ -184,16 +190,22 @@ public class EncryptionUtil {
 
 //            copy(is, os);
             int i;
-            byte[] b = new byte[1024];
+            byte[] b = new byte[BLOCK_SIZE];
             while( (i = is.read(b)) != -1) {
                 os.write(b, 0, i);
+                cipher.update(b);
             }
+            cipher.doFinal();
             is.close();
             os.close();
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         }
 
@@ -240,7 +252,7 @@ public class EncryptionUtil {
             System.out.println("Decrypted: " + plainText);
 
             System.out.println("Testing file encrypting: ");
-            File input = new File("tester.txt");
+            File input = new File("To Encrypt.txt");
             File output = new File("Encrypted Output.txt");
 
             encrypt(input, output, publicKey);
