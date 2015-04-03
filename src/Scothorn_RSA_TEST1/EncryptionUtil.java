@@ -1,6 +1,12 @@
 package Scothorn_RSA_TEST1;
 
 /**
+ * Code originally from  https://javadigest.wordpress.com/2012/08/26/rsa-encryption-example/
+ * Author: Unknown
+ * retrieved on 2015/3/26
+ */
+
+/**
  * Created by brett on 2015-03-26.
  */
 import java.io.*;
