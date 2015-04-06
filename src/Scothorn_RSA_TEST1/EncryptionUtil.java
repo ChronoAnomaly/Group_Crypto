@@ -23,31 +23,40 @@ public class EncryptionUtil {
     /**
      * String to hold name of the encryption algorithm.
      */
-    public static final String ALGORITHM = "RSA";
+    public final String ALGORITHM = "RSA/ECB/PKCS1Padding";
 
     /**
      * String to hold the name of the private key file.
      */
-    public static final String PRIVATE_KEY_FILE = "./keys/private.key";
+    public final String PRIVATE_KEY_FILE = "./keys/private.key";
 
     /**
      * String to hold name of the public key file.
      */
-    public static final String PUBLIC_KEY_FILE = "./keys/public.key";
+    public final String PUBLIC_KEY_FILE = "./keys/public.key";
 
-    private static final int BLOCK_SIZE = 100;
+    private final int BLOCK_SIZE = 48;
+
+
+    public EncryptionUtil() {
+        if (!areKeysPresent()) {
+            // Method generates a pair of keys using the RSA algorithm and stores it
+            // in their respective files
+            generateKey();
+        }
+    }
 
     /**
      * Generate key which contains a pair of private and public key using 1024
-     * bytes. Store the set of keys in Prvate.key and Public.key files.
+     * bytes. Store the set of keys in Private.key and Public.key files.
      *
      * @throws NoSuchAlgorithmException
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public static void generateKey() {
+    public void generateKey() {
         try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
             keyGen.initialize(1024);
             final KeyPair key = keyGen.generateKeyPair();
 
@@ -87,7 +96,7 @@ public class EncryptionUtil {
      *
      * @return flag indicating if the pair of keys were generated.
      */
-    public static boolean areKeysPresent() {
+    public boolean areKeysPresent() {
 
         File privateKey = new File(PRIVATE_KEY_FILE);
         File publicKey = new File(PUBLIC_KEY_FILE);
@@ -108,7 +117,7 @@ public class EncryptionUtil {
      * @return Encrypted text
      * @throws java.lang.Exception
      */
-    public static byte[] encrypt(String text, PublicKey key) {
+    public byte[] encrypt(String text, PublicKey key) {
         byte[] cipherText = null;
         try {
             // get an RSA cipher object and print the provider
@@ -132,21 +141,21 @@ public class EncryptionUtil {
      * @return plain text
      * @throws java.lang.Exception
      */
-    public static String decrypt(byte[] text, PrivateKey key) {
-        byte[] dectyptedText = null;
+    public String decrypt(byte[] text, PrivateKey key) {
+        byte[] decryptedText = null;
         try {
             // get an RSA cipher object and print the provider
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
 
             // decrypt the text using the private key
             cipher.init(Cipher.DECRYPT_MODE, key);
-            dectyptedText = cipher.doFinal(text);
+            decryptedText = cipher.doFinal(text);
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        return new String(dectyptedText);
+        return new String(decryptedText);
     }
 
     /*
@@ -155,7 +164,7 @@ public class EncryptionUtil {
     ===========================================================================
      */
 
-    public static void encrypt(File in, File out, PublicKey key) throws IOException, InvalidKeyException {
+    public void encrypt(File in, File out, PublicKey key) throws IOException, InvalidKeyException {
 
         try {
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -164,28 +173,24 @@ public class EncryptionUtil {
             FileInputStream is = new FileInputStream(in);
             CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), cipher);
 
-//            copy(is, os);
+            copy(is, os);
             int i;
             byte[] b = new byte[BLOCK_SIZE];
             while( (i = is.read(b)) != -1) {
                 os.write(b, 0, i);
-                cipher.update(b);
+//                cipher.update(b);
             }
-            cipher.doFinal();
+//            cipher.doFinal();
             is.close();
             os.close();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
         }
     }
 
-    public static void decrypt(File in, File out, PrivateKey key) throws IOException, InvalidKeyException {
+    public void decrypt(File in, File out, PrivateKey key) throws IOException, InvalidKeyException {
 
         try {
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -194,14 +199,14 @@ public class EncryptionUtil {
             CipherInputStream is = new CipherInputStream(new FileInputStream(in), cipher);
             FileOutputStream os = new FileOutputStream(out);
 
-//            copy(is, os);
+            copy(is, os);
             int i;
             byte[] b = new byte[BLOCK_SIZE];
             while( (i = is.read(b)) != -1) {
                 os.write(b, 0, i);
-                cipher.update(b);
+//                cipher.update(b);
             }
-            cipher.doFinal();
+//            cipher.doFinal();
             is.close();
             os.close();
 
@@ -209,67 +214,16 @@ public class EncryptionUtil {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
         }
 
     }
 
-    private static void copy(InputStream is, OutputStream os) throws IOException {
+    private void copy(InputStream is, OutputStream os) throws IOException {
 
         int i;
-        byte[] b = new byte[1024];
+        byte[] b = new byte[BLOCK_SIZE];
         while( (i = is.read(b)) != -1) {
             os.write(b, 0, i);
-        }
-    }
-    /**
-     * Test the EncryptionUtil
-     */
-    public static void main(String[] args) {
-
-        try {
-
-            // Check if the pair of keys are present else generate those.
-            if (!areKeysPresent()) {
-                // Method generates a pair of keys using the RSA algorithm and stores it
-                // in their respective files
-                generateKey();
-            }
-
-            final String originalText = "Text to be encrypted ";
-            ObjectInputStream inputStream = null;
-
-            // Encrypt the string using the public key
-            inputStream = new ObjectInputStream(new FileInputStream(PUBLIC_KEY_FILE));
-            final PublicKey publicKey = (PublicKey) inputStream.readObject();
-            final byte[] cipherText = encrypt(originalText, publicKey);
-
-            // Decrypt the cipher text using the private key.
-            inputStream = new ObjectInputStream(new FileInputStream(PRIVATE_KEY_FILE));
-            final PrivateKey privateKey = (PrivateKey) inputStream.readObject();
-            final String plainText = decrypt(cipherText, privateKey);
-
-            // Printing the Original, Encrypted and Decrypted Text
-            System.out.println("Original: " + originalText);
-            System.out.println("Encrypted: " +cipherText.toString());
-            System.out.println("Decrypted: " + plainText);
-
-            System.out.println("Testing file encrypting: ");
-            File input = new File("To Encrypt.txt");
-            File output = new File("Encrypted Output.txt");
-
-            encrypt(input, output, publicKey);
-
-            File deOut = new File("Decrypted Output.txt");
-
-            decrypt(output, deOut, privateKey);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
