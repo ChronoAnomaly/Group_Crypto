@@ -36,6 +36,9 @@ public class EncryptionUtil {
      */
     public final String PUBLIC_KEY_FILE = "./keys/public.key";
 
+    public final String KEY_FILE =  "./keys/secure.keystore";
+    private String passTest = "TeStInG";
+
     private final int BLOCK_SIZE = 1024;
     private final int AES_KEY_SIZE = 128;
 
@@ -47,6 +50,29 @@ public class EncryptionUtil {
 
     public EncryptionUtil() {
 
+        try {
+
+
+
+
+            KeyStore keyStore = createKeyStore(KEY_FILE, passTest);
+
+            if (keyStore.size() == 0) {
+                generateKey();
+
+                // store the secret key
+                KeyStore.SecretKeyEntry keyStoreEntry = new KeyStore.SecretKeyEntry(aeskeySpec);
+                KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection("pw-secret".toCharArray());
+                keyStore.setEntry("aesSecretKey", keyStoreEntry, keyPassword);
+                keyStore.store(new FileOutputStream(KEY_FILE), passTest.toCharArray());
+            } else {
+
+                KeyStore.Entry entry = keyStore.getEntry("mySecretKey", null);
+                aeskeySpec = (SecretKeySpec) entry;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //        if (!areKeysPresent()) {
 //            // Method generates a pair of keys using the RSA algorithm and stores it
@@ -114,6 +140,31 @@ public class EncryptionUtil {
 //        }
 
     }
+    private static KeyStore createKeyStore(String fileName, String pw) throws Exception {
+        File file = new File(fileName);
+
+        final KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        if (file.exists()) {
+            // .keystore file already exists => load it
+            keyStore.load(new FileInputStream(file), pw.toCharArray());
+        } else {
+            // .keystore file not created yet => create it
+            keyStore.load(null, null);
+//            keyStore.store(new FileOutputStream(fileName), pw.toCharArray());
+            // store away the keystore
+            java.io.FileOutputStream fos = null;
+            try {
+                fos = new java.io.FileOutputStream("newKeyStoreName");
+                keyStore.store(fos, pw.toCharArray());
+            } finally {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+        }
+
+        return keyStore;
+    }
 
     /**
      * The method checks if the pair of public and private key has been generated.
@@ -122,14 +173,25 @@ public class EncryptionUtil {
      */
     public boolean areKeysPresent() {
 
-        File privateKey = new File(PRIVATE_KEY_FILE);
-        File publicKey = new File(PUBLIC_KEY_FILE);
+        File secureKey = new File(KEY_FILE);
 
-        if (privateKey.exists() && publicKey.exists()) {
+        if (secureKey.exists()) {
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
+
+//    private void saveKey() throws IOException {
+//
+//        ObjectOutputStream oout = new ObjectOutputStream(aeskeySpec);
+//        try {
+//            oout.writeObject(KEY_FILE);
+//        } finally {
+//            oout.close();
+//        }
+//
+//    }
 
     /**
      * Encrypt the plain text using public key.
