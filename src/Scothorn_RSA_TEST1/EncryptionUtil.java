@@ -36,7 +36,7 @@ public class EncryptionUtil {
      */
     public final String PUBLIC_KEY_FILE = "./keys/public.key";
 
-    private final int BLOCK_SIZE = 48;
+    private final int BLOCK_SIZE = 1024;
     private final int AES_KEY_SIZE = 128;
 
     private byte[] aesKey;
@@ -197,13 +197,7 @@ public class EncryptionUtil {
         CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
 
         copy(is, os);
-        int i;
-        byte[] b = new byte[BLOCK_SIZE];
-        while( (i = is.read(b)) != -1) {
-            os.write(b, 0, i);
-//                cipher.update(b);
-        }
-//            cipher.doFinal();
+
         is.close();
         os.close();
     }
@@ -217,13 +211,7 @@ public class EncryptionUtil {
         FileOutputStream os = new FileOutputStream(out);
 
         copy(is, os);
-        int i;
-        byte[] b = new byte[BLOCK_SIZE];
-        while( (i = is.read(b)) != -1) {
-            os.write(b, 0, i);
-//                cipher.update(b);
-        }
-//            cipher.doFinal();
+
         is.close();
         os.close();
 
