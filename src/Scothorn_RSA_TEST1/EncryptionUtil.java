@@ -13,6 +13,7 @@ import java.io.*;
 import java.security.*;
 
 import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author JavaDigest
@@ -23,7 +24,7 @@ public class EncryptionUtil {
     /**
      * String to hold name of the encryption algorithm.
      */
-    public final String ALGORITHM = "RSA/ECB/PKCS1Padding";
+    public final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
     /**
      * String to hold the name of the private key file.
@@ -36,14 +37,22 @@ public class EncryptionUtil {
     public final String PUBLIC_KEY_FILE = "./keys/public.key";
 
     private final int BLOCK_SIZE = 48;
+    private final int AES_KEY_SIZE = 128;
+
+    private byte[] aesKey;
+
+    private Cipher aesCipher;
+    private SecretKeySpec aeskeySpec;
 
 
     public EncryptionUtil() {
-        if (!areKeysPresent()) {
-            // Method generates a pair of keys using the RSA algorithm and stores it
-            // in their respective files
+
+
+//        if (!areKeysPresent()) {
+//            // Method generates a pair of keys using the RSA algorithm and stores it
+//            // in their respective files
             generateKey();
-        }
+//        }
     }
 
     /**
@@ -55,39 +64,54 @@ public class EncryptionUtil {
      * @throws FileNotFoundException
      */
     public void generateKey() {
+
         try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(1024);
-            final KeyPair key = keyGen.generateKeyPair();
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
+            kgen.init(AES_KEY_SIZE);
+            SecretKey key = kgen.generateKey();
+            aesKey = key.getEncoded();
+            aeskeySpec = new SecretKeySpec(aesKey, "AES");
+            aesCipher = Cipher.getInstance(ALGORITHM);
 
-            File privateKeyFile = new File(PRIVATE_KEY_FILE);
-            File publicKeyFile = new File(PUBLIC_KEY_FILE);
-
-            // Create files to store public and private key
-            if (privateKeyFile.getParentFile() != null) {
-                privateKeyFile.getParentFile().mkdirs();
-            }
-            privateKeyFile.createNewFile();
-
-            if (publicKeyFile.getParentFile() != null) {
-                publicKeyFile.getParentFile().mkdirs();
-            }
-            publicKeyFile.createNewFile();
-
-            // Saving the Public key in a file
-            ObjectOutputStream publicKeyOS = new ObjectOutputStream(
-                    new FileOutputStream(publicKeyFile));
-            publicKeyOS.writeObject(key.getPublic());
-            publicKeyOS.close();
-
-            // Saving the Private key in a file
-            ObjectOutputStream privateKeyOS = new ObjectOutputStream(
-                    new FileOutputStream(privateKeyFile));
-            privateKeyOS.writeObject(key.getPrivate());
-            privateKeyOS.close();
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         }
+
+//        try {
+//            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+//            keyGen.initialize(1024);
+//            final KeyPair key = keyGen.generateKeyPair();
+//
+//            File privateKeyFile = new File(PRIVATE_KEY_FILE);
+//            File publicKeyFile = new File(PUBLIC_KEY_FILE);
+//
+//            // Create files to store public and private key
+//            if (privateKeyFile.getParentFile() != null) {
+//                privateKeyFile.getParentFile().mkdirs();
+//            }
+//            privateKeyFile.createNewFile();
+//
+//            if (publicKeyFile.getParentFile() != null) {
+//                publicKeyFile.getParentFile().mkdirs();
+//            }
+//            publicKeyFile.createNewFile();
+//
+//            // Saving the Public key in a file
+//            ObjectOutputStream publicKeyOS = new ObjectOutputStream(
+//                    new FileOutputStream(publicKeyFile));
+//            publicKeyOS.writeObject(key.getPublic());
+//            publicKeyOS.close();
+//
+//            // Saving the Private key in a file
+//            ObjectOutputStream privateKeyOS = new ObjectOutputStream(
+//                    new FileOutputStream(privateKeyFile));
+//            privateKeyOS.writeObject(key.getPrivate());
+//            privateKeyOS.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -164,57 +188,44 @@ public class EncryptionUtil {
     ===========================================================================
      */
 
-    public void encrypt(File in, File out, PublicKey key) throws IOException, InvalidKeyException {
+    public void encrypt(File in, File out) throws IOException, InvalidKeyException {
 
-        try {
-            final Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
+        //            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+        aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
 
-            FileInputStream is = new FileInputStream(in);
-            CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), cipher);
+        FileInputStream is = new FileInputStream(in);
+        CipherOutputStream os = new CipherOutputStream(new FileOutputStream(out), aesCipher);
 
-            copy(is, os);
-            int i;
-            byte[] b = new byte[BLOCK_SIZE];
-            while( (i = is.read(b)) != -1) {
-                os.write(b, 0, i);
+        copy(is, os);
+        int i;
+        byte[] b = new byte[BLOCK_SIZE];
+        while( (i = is.read(b)) != -1) {
+            os.write(b, 0, i);
 //                cipher.update(b);
-            }
-//            cipher.doFinal();
-            is.close();
-            os.close();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
         }
+//            cipher.doFinal();
+        is.close();
+        os.close();
     }
 
-    public void decrypt(File in, File out, PrivateKey key) throws IOException, InvalidKeyException {
+    public void decrypt(File in, File out) throws IOException, InvalidKeyException {
 
-        try {
-            final Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, key);
+        //            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+        aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
 
-            CipherInputStream is = new CipherInputStream(new FileInputStream(in), cipher);
-            FileOutputStream os = new FileOutputStream(out);
+        CipherInputStream is = new CipherInputStream(new FileInputStream(in), aesCipher);
+        FileOutputStream os = new FileOutputStream(out);
 
-            copy(is, os);
-            int i;
-            byte[] b = new byte[BLOCK_SIZE];
-            while( (i = is.read(b)) != -1) {
-                os.write(b, 0, i);
+        copy(is, os);
+        int i;
+        byte[] b = new byte[BLOCK_SIZE];
+        while( (i = is.read(b)) != -1) {
+            os.write(b, 0, i);
 //                cipher.update(b);
-            }
-//            cipher.doFinal();
-            is.close();
-            os.close();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
         }
+//            cipher.doFinal();
+        is.close();
+        os.close();
 
     }
 

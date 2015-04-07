@@ -19,33 +19,33 @@ public class EncryptionTest {
         try {
 
 
-            final String originalText = "Text to be encrypted ";
-            ObjectInputStream inputStream = null;
-
-            // Encrypt the string using the public key
-            inputStream = new ObjectInputStream(new FileInputStream(sec.PUBLIC_KEY_FILE));
-            final PublicKey publicKey = (PublicKey) inputStream.readObject();
-            final byte[] cipherText = sec.encrypt(originalText, publicKey);
-
-            // Decrypt the cipher text using the private key.
-            inputStream = new ObjectInputStream(new FileInputStream(sec.PRIVATE_KEY_FILE));
-            final PrivateKey privateKey = (PrivateKey) inputStream.readObject();
-            final String plainText = sec.decrypt(cipherText, privateKey);
-
-            // Printing the Original, Encrypted and Decrypted Text
-            System.out.println("Original: " + originalText);
-            System.out.println("Encrypted: " +cipherText.toString());
-            System.out.println("Decrypted: " + plainText);
+//            final String originalText = "Text to be encrypted ";
+//            ObjectInputStream inputStream = null;
+//
+//            // Encrypt the string using the public key
+//            inputStream = new ObjectInputStream(new FileInputStream(sec.PUBLIC_KEY_FILE));
+//            final PublicKey publicKey = (PublicKey) inputStream.readObject();
+//            final byte[] cipherText = sec.encrypt(originalText, publicKey);
+//
+//            // Decrypt the cipher text using the private key.
+//            inputStream = new ObjectInputStream(new FileInputStream(sec.PRIVATE_KEY_FILE));
+//            final PrivateKey privateKey = (PrivateKey) inputStream.readObject();
+//            final String plainText = sec.decrypt(cipherText, privateKey);
+//
+//            // Printing the Original, Encrypted and Decrypted Text
+//            System.out.println("Original: " + originalText);
+//            System.out.println("Encrypted: " +cipherText.toString());
+//            System.out.println("Decrypted: " + plainText);
 
             System.out.println("Testing file encrypting: ");
-            File input = new File("tester.txt");
+            File input = new File("To Encrypt.txt");
             File output = new File("Encrypted Output.txt");
 
-            sec.encrypt(input, output, publicKey);
+            sec.encrypt(input, output);
 
             File deOut = new File("Decrypted Output.txt");
 
-            sec.decrypt(output, deOut, privateKey);
+            sec.decrypt(output, deOut);
 
 
         } catch (Exception e) {
