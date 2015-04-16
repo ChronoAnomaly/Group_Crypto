@@ -1,12 +1,13 @@
 # Group_Crypto
 CEG-4110-01 Group 4
 
-We will need to change the code to have it save the keys to a location and allow it
-to fetch a public key from a server to encrypt the data with.
-
-Look through the code and make sure to understand it.  If you want to make changes, create a new branch to later merge
-with the master branch.
 
 To run as currently implemented
 -------------------------------
-The RSATest class must be run with the command line arguments with 'plaintext' 'destination'.
+The EncryptionUtil class is set to run with the command line. It will need to have two arguments passed to it in the
+form of: command fileName.
+
+The commands are : encrypt, decrypt
+
+The file that is named must be placed inside of the project folder and once the command is run on it, it will
+be placed in the keys folder by default
