@@ -21,35 +21,25 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionUtil {
 
-    /**
-     * String to hold name of the encryption algorithm.
-     */
-    public static final String ALGORITHM = "AES/ECB/PKCS5Padding";
+    //String to hold name of the encryption algorithm.
+    private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
-    public static final String FOLDER = "./keys/";
-    /**
-     * Location of the private key for the AES algorithm.
-     */
-    public static final String KEY_FILE =   FOLDER + "secure.key";
+    private static final String FOLDER = "./keys/";
 
+    //Location of the private key for the AES algorithm.
+    private static final String KEY_FILE =   FOLDER + "secure.key";
+
+    // The block sizes that are used in the encryption and decryption process.
     private static final int BLOCK_SIZE = 1024;
     private static final int AES_KEY_SIZE = 128;
 
+    // Holds the base AES key.
     private static byte[] aesKey;
-
+    // Cipher used to encrypt and decrypt with the AES algorithm.
     private static Cipher aesCipher;
+    // Modified key, based on the aesKey.
     private static SecretKeySpec aeskeySpec;
 
-//    public EncryptionUtil() throws GeneralSecurityException, IOException {
-//
-//        if (!areKeysPresent()) {
-//            // Method generates a pair of keys using the RSA algorithm and stores it
-//            // in their respective files
-//            generateKey();
-//        } else {
-//            loadKey();
-//        }
-//    }
 
     /**
      * Generate key which contains a pair of private and public key using 1024
@@ -86,6 +76,13 @@ public class EncryptionUtil {
 
     }
 
+    /**
+     * Creates a file that is used to store the AES key for further uses. It makes the file inside of a sub folder
+     * based on where KEY_FILE points to.
+     *
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
     public static void saveKey() throws IOException, GeneralSecurityException {
 
 
@@ -103,17 +100,20 @@ public class EncryptionUtil {
 
     }
 
+    /**
+     * Loads the AES key that was saved based on a previous run of the program. It loads into aesKey and then
+     * inits the modified key into aesKeySpec.  The AES cipher is then generated for the current run.
+     *
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
     public static void loadKey() throws GeneralSecurityException, IOException {
 
-
         File privateKeyFile = new File(KEY_FILE);
-
-
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(privateKeyFile));
 
         aesKey = new byte[AES_KEY_SIZE/8];
-        FileInputStream is = new FileInputStream(privateKeyFile);
-        BufferedInputStream bin = new BufferedInputStream(is);
+
         in.read(aesKey);
         aeskeySpec = new SecretKeySpec(aesKey, "AES");
         aesCipher = Cipher.getInstance(ALGORITHM);
@@ -143,9 +143,16 @@ public class EncryptionUtil {
     ===========================================================================
      */
 
+    /**
+     * Encrypts a file. The file to be encrypted must be placed inside of the project's directory.
+     *
+     * @param in - The file to encrypt
+     * @param out - The output file where the encrypt file is placed
+     * @throws IOException
+     * @throws InvalidKeyException
+     */
     public static void encrypt(File in, File out) throws IOException, InvalidKeyException {
 
-        //            final Cipher cipher = Cipher.getInstance(ALGORITHM);
         aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
 
         FileInputStream is = new FileInputStream(in);
@@ -157,9 +164,16 @@ public class EncryptionUtil {
         os.close();
     }
 
+    /**
+     * Decrypts a file. The file to be decrypted must be placed inside of the project's directory.
+     *
+     * @param in - The encrypted file that is to be decrypted
+     * @param out - The file where decrypted output is placed
+     * @throws IOException
+     * @throws InvalidKeyException
+     */
     public static void decrypt(File in, File out) throws IOException, InvalidKeyException {
 
-        //            final Cipher cipher = Cipher.getInstance(ALGORITHM);
         aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
 
         CipherInputStream is = new CipherInputStream(new FileInputStream(in), aesCipher);
@@ -172,6 +186,13 @@ public class EncryptionUtil {
 
     }
 
+    /**
+     * Reads and writes out to the buffers that are being used for the encryption/decryption methods.
+     *
+     * @param is - The input stream that is being read from
+     * @param os - The output stream that is being wrote to
+     * @throws IOException
+     */
     private static void copy(InputStream is, OutputStream os) throws IOException {
 
         int i;
@@ -182,17 +203,25 @@ public class EncryptionUtil {
     }
 
 
+    /**
+     * Main method of the program. Runs from the command line to call the encrypt or decrypt methods.
+     *
+     * @param args - Must contain 2 arguments for the program to run : command fileName (commands are [encrypt] and
+     *             [decrypt]
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
     public static void main(String[] args) throws GeneralSecurityException, IOException {
 
+        /* Checks if the program has had a previous run created a AES key, if not, then it will create and store a
+         AES key */
         if (!areKeysPresent()) {
-            // Method generates a pair of keys using the RSA algorithm and stores it
-            // in their respective files
             generateKey();
         } else {
             loadKey();
         }
 
-
+        // ensures the correct number of arguments have been given to the program
         if (args.length < 2) {
             System.out.println("You must provide the the function type (encrypt/decrypt) and the file name");
         } else {
