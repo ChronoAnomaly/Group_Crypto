@@ -24,32 +24,32 @@ public class EncryptionUtil {
     /**
      * String to hold name of the encryption algorithm.
      */
-    public final String ALGORITHM = "AES/ECB/PKCS5Padding";
+    public static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
+    public static final String FOLDER = "./keys/";
     /**
      * Location of the private key for the AES algorithm.
      */
-    public final String KEY_FILE =  "./keys/secure.key";
+    public static final String KEY_FILE =   FOLDER + "secure.key";
 
-    private final int BLOCK_SIZE = 1024;
-    private final int AES_KEY_SIZE = 128;
+    private static final int BLOCK_SIZE = 1024;
+    private static final int AES_KEY_SIZE = 128;
 
-    private byte[] aesKey;
+    private static byte[] aesKey;
 
-    private Cipher aesCipher;
-    private SecretKeySpec aeskeySpec;
+    private static Cipher aesCipher;
+    private static SecretKeySpec aeskeySpec;
 
-
-    public EncryptionUtil() throws GeneralSecurityException, IOException {
-
-        if (!areKeysPresent()) {
-            // Method generates a pair of keys using the RSA algorithm and stores it
-            // in their respective files
-            generateKey();
-        } else {
-            loadKey();
-        }
-    }
+//    public EncryptionUtil() throws GeneralSecurityException, IOException {
+//
+//        if (!areKeysPresent()) {
+//            // Method generates a pair of keys using the RSA algorithm and stores it
+//            // in their respective files
+//            generateKey();
+//        } else {
+//            loadKey();
+//        }
+//    }
 
     /**
      * Generate key which contains a pair of private and public key using 1024
@@ -59,7 +59,7 @@ public class EncryptionUtil {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public void generateKey() {
+    public static void generateKey() {
 
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -86,7 +86,7 @@ public class EncryptionUtil {
 
     }
 
-    public void saveKey() throws IOException, GeneralSecurityException {
+    public static void saveKey() throws IOException, GeneralSecurityException {
 
 
             File privateKeyFile = new File(KEY_FILE);
@@ -103,7 +103,7 @@ public class EncryptionUtil {
 
     }
 
-    public void loadKey() throws GeneralSecurityException, IOException {
+    public static void loadKey() throws GeneralSecurityException, IOException {
 
 
         File privateKeyFile = new File(KEY_FILE);
@@ -126,7 +126,7 @@ public class EncryptionUtil {
      *
      * @return flag indicating if the pair of keys were generated.
      */
-    public boolean areKeysPresent() {
+    public static boolean areKeysPresent() {
 
         File secureKey = new File(KEY_FILE);
 
@@ -143,7 +143,7 @@ public class EncryptionUtil {
     ===========================================================================
      */
 
-    public void encrypt(File in, File out) throws IOException, InvalidKeyException {
+    public static void encrypt(File in, File out) throws IOException, InvalidKeyException {
 
         //            final Cipher cipher = Cipher.getInstance(ALGORITHM);
         aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
@@ -157,7 +157,7 @@ public class EncryptionUtil {
         os.close();
     }
 
-    public void decrypt(File in, File out) throws IOException, InvalidKeyException {
+    public static void decrypt(File in, File out) throws IOException, InvalidKeyException {
 
         //            final Cipher cipher = Cipher.getInstance(ALGORITHM);
         aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
@@ -172,12 +172,40 @@ public class EncryptionUtil {
 
     }
 
-    private void copy(InputStream is, OutputStream os) throws IOException {
+    private static void copy(InputStream is, OutputStream os) throws IOException {
 
         int i;
         byte[] b = new byte[BLOCK_SIZE];
         while( (i = is.read(b)) != -1) {
             os.write(b, 0, i);
+        }
+    }
+
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException {
+
+        if (!areKeysPresent()) {
+            // Method generates a pair of keys using the RSA algorithm and stores it
+            // in their respective files
+            generateKey();
+        } else {
+            loadKey();
+        }
+
+
+        if (args.length < 2) {
+            System.out.println("You must provide the the function type (encrypt/decrypt) and the file name");
+        } else {
+
+            if (args[0].equalsIgnoreCase("encrypt")) {
+                File input = new File(args[1]);
+                File encrypted = new File(FOLDER + args[1]);
+                encrypt(input, encrypted);
+            } else if ( args[0].equalsIgnoreCase("decrypt")) {
+                File input = new File(args[1]);
+                File decrypted = new File(FOLDER + args[1]);
+                decrypt(input, decrypted);
+            }
         }
     }
 }

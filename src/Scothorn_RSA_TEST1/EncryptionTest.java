@@ -12,13 +12,7 @@ public class EncryptionTest {
     public static void main(String[] args) {
 
         EncryptionUtil sec = null;
-        try {
-            sec = new EncryptionUtil();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sec = new EncryptionUtil();
 
 
         try {
