@@ -5,7 +5,7 @@ CEG-4110-01 Group 4
 To run as currently implemented
 -------------------------------
 The EncryptionUtil class is set to run with the command line. It will need to have two arguments passed to it in the
-form of: command fileName.
+form of: command fileName destination.
 
 The commands are : encrypt, decrypt
 
