@@ -9,11 +9,16 @@ package Scothorn_RSA_TEST1;
 /**
  * Created by brett on 2015-03-26.
  */
-import java.io.*;
-import java.security.*;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author JavaDigest
@@ -25,6 +30,8 @@ public class EncryptionUtil {
     private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
     private static final String FOLDER = "./keys/";
+
+    private static Path fileLocation;
 
     //Location of the private key for the AES algorithm.
     private static final String KEY_FILE =   FOLDER + "secure.key";
@@ -206,8 +213,8 @@ public class EncryptionUtil {
     /**
      * Main method of the program. Runs from the command line to call the encrypt or decrypt methods.
      *
-     * @param args - Must contain 2 arguments for the program to run : command fileName (commands are [encrypt] and
-     *             [decrypt]
+     * @param args - Must contain 3 arguments for the program to run : command fileName destination
+     *             (commands are [encrypt] and [decrypt]
      * @throws GeneralSecurityException
      * @throws IOException
      */
@@ -222,18 +229,33 @@ public class EncryptionUtil {
         }
 
         // ensures the correct number of arguments have been given to the program
-        if (args.length < 2) {
-            System.out.println("You must provide the the function type (encrypt/decrypt) and the file name");
+        if (args.length < 3) {
+            System.out.println("You must provide the the function type (encrypt/decrypt), the file name" +
+                    ", and the location to store the key and file.");
         } else {
+
+            File check = new File(args[3]);
+            fileLocation = Paths.get(check.getCanonicalPath());
+            Files.createDirectories(fileLocation);
+
+//            if (!check.exists()) {
+//                if (!check.mkdirs()) {
+//                    System.out.println("Unable to access the destination location.");
+//                    System.exit(1);
+//                }
+//            }
 
             if (args[0].equalsIgnoreCase("encrypt")) {
                 File input = new File(args[1]);
-                File encrypted = new File(FOLDER + args[1]);
+                File encrypted = new File(fileLocation + args[1]);
                 encrypt(input, encrypted);
             } else if ( args[0].equalsIgnoreCase("decrypt")) {
                 File input = new File(args[1]);
-                File decrypted = new File(FOLDER + args[1]);
+                File decrypted = new File(fileLocation + args[1]);
                 decrypt(input, decrypted);
+            } else {
+                System.out.println("Invalid command");
+                System.exit(1);
             }
         }
     }
