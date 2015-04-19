@@ -1,4 +1,4 @@
-package Scothorn_RSA_TEST1;
+package group_crypto;
 
 /**
  * Code originally from  https://javadigest.wordpress.com/2012/08/26/rsa-encryption-example/
@@ -13,9 +13,6 @@ package Scothorn_RSA_TEST1;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -26,14 +23,13 @@ import java.security.NoSuchAlgorithmException;
  */
 public class EncryptionUtil {
 
-    //String to hold name of the encryption algorithm.
+    // String to hold name of the encryption algorithm.
     private static final String ALGORITHM = "AES/ECB/PKCS5Padding";
 
+    // Folder location for where the AES key is stored.
     private static final String FOLDER = "./keys/";
 
-    private static Path fileLocation;
-
-    //Location of the private key for the AES algorithm.
+    // Location of the private key for the AES algorithm.
     private static final String KEY_FILE =   FOLDER + "secure.key";
 
     // The block sizes that are used in the encryption and decryption process.
@@ -51,12 +47,8 @@ public class EncryptionUtil {
     /**
      * Generate key which contains a pair of private and public key using 1024
      * bytes. Store the set of keys in Private.key and Public.key files.
-     *
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
-     * @throws FileNotFoundException
      */
-    public static void generateKey() {
+    private static void generateKey() {
 
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -77,8 +69,6 @@ public class EncryptionUtil {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
         }
 
     }
@@ -88,9 +78,8 @@ public class EncryptionUtil {
      * based on where KEY_FILE points to.
      *
      * @throws IOException
-     * @throws GeneralSecurityException
      */
-    public static void saveKey() throws IOException, GeneralSecurityException {
+    private static void saveKey() throws IOException {
 
 
             File privateKeyFile = new File(KEY_FILE);
@@ -109,19 +98,19 @@ public class EncryptionUtil {
 
     /**
      * Loads the AES key that was saved based on a previous run of the program. It loads into aesKey and then
-     * inits the modified key into aesKeySpec.  The AES cipher is then generated for the current run.
+     * initializes the modified key into aesKeySpec.  The AES cipher is then generated for the current run.
      *
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public static void loadKey() throws GeneralSecurityException, IOException {
+    private static void loadKey() throws GeneralSecurityException, IOException {
 
         File privateKeyFile = new File(KEY_FILE);
-        ObjectInputStream in = new ObjectInputStream(new FileInputStream(privateKeyFile));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(privateKeyFile));
 
         aesKey = new byte[AES_KEY_SIZE/8];
 
-        in.read(aesKey);
+        ois.read(aesKey);
         aeskeySpec = new SecretKeySpec(aesKey, "AES");
         aesCipher = Cipher.getInstance(ALGORITHM);
 
@@ -133,15 +122,11 @@ public class EncryptionUtil {
      *
      * @return flag indicating if the pair of keys were generated.
      */
-    public static boolean areKeysPresent() {
+    private static boolean areKeysPresent() {
 
         File secureKey = new File(KEY_FILE);
 
-        if (secureKey.exists()) {
-            return true;
-        } else {
-            return false;
-        }
+        return secureKey.exists();
     }
 
     /*
@@ -158,7 +143,7 @@ public class EncryptionUtil {
      * @throws IOException
      * @throws InvalidKeyException
      */
-    public static void encrypt(File in, File out) throws IOException, InvalidKeyException {
+    private static void encrypt(File in, File out) throws IOException, InvalidKeyException {
 
         aesCipher.init(Cipher.ENCRYPT_MODE, aeskeySpec);
 
@@ -179,7 +164,7 @@ public class EncryptionUtil {
      * @throws IOException
      * @throws InvalidKeyException
      */
-    public static void decrypt(File in, File out) throws IOException, InvalidKeyException {
+    private static void decrypt(File in, File out) throws IOException, InvalidKeyException {
 
         aesCipher.init(Cipher.DECRYPT_MODE, aeskeySpec);
 
@@ -234,24 +219,20 @@ public class EncryptionUtil {
                     ", and the location to store the key and file.");
         } else {
 
-            File check = new File(args[3]);
-            fileLocation = Paths.get(check.getCanonicalPath());
-            Files.createDirectories(fileLocation);
+            File destinationFolder = new File(args[2]);
 
-//            if (!check.exists()) {
-//                if (!check.mkdirs()) {
-//                    System.out.println("Unable to access the destination location.");
-//                    System.exit(1);
-//                }
-//            }
+            if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
+                    System.out.println("Unable to access the destination location.");
+                    System.exit(1);
+            }
 
             if (args[0].equalsIgnoreCase("encrypt")) {
                 File input = new File(args[1]);
-                File encrypted = new File(fileLocation + args[1]);
+                File encrypted = new File(destinationFolder, args[1]);
                 encrypt(input, encrypted);
             } else if ( args[0].equalsIgnoreCase("decrypt")) {
                 File input = new File(args[1]);
-                File decrypted = new File(fileLocation + args[1]);
+                File decrypted = new File(destinationFolder, args[1]);
                 decrypt(input, decrypted);
             } else {
                 System.out.println("Invalid command");

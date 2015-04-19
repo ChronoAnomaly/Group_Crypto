@@ -1,4 +1,4 @@
-package Scothorn_RSA_TEST1;
+package group_crypto;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,9 +15,10 @@ public class EncryptionTest {
     public static void main(String[] args) throws IOException {
 
 
+        // TODO possibly work on making this test run the EncryptionUtil program and pass args to it
         String command, file, destination;
         Scanner in = new Scanner(System.in);
-        System.out.print("Enter: command file destinaiton\n");
+        System.out.print("Enter: command file destination\n");
         command = in.next();
         file = in.next();
         destination = in.next();
