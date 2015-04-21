@@ -216,7 +216,7 @@ public class EncryptionUtil {
         // ensures the correct number of arguments have been given to the program
         if (args.length < 3) {
             System.out.println("You must provide the the function type (encrypt/decrypt), the file name" +
-                    ", and the location to store the key and file.");
+                    ", and the location to store the file.");
         } else {
 
             File destinationFolder = new File(args[2]);
