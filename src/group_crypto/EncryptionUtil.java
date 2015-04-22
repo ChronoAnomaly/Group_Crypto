@@ -13,6 +13,9 @@ package group_crypto;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -226,13 +229,21 @@ public class EncryptionUtil {
                     System.exit(1);
             }
 
+
             if (args[0].equalsIgnoreCase("encrypt")) {
+                String tempName = args[1].substring(0, args[1].length() - 4);
+                tempName += "_enc" + args[1].substring(args[1].length() - 4);
+
                 File input = new File(args[1]);
-                File encrypted = new File(destinationFolder, args[1]);
+                File encrypted = new File(destinationFolder, tempName);
                 encrypt(input, encrypted);
             } else if ( args[0].equalsIgnoreCase("decrypt")) {
-                File input = new File(args[1]);
-                File decrypted = new File(destinationFolder, args[1]);
+                String tempName = args[1].substring(0, args[1].length() - 8);
+                tempName += "_dec" + args[1].substring(args[1].length() - 4);
+
+                File input = new File(destinationFolder, args[1]);
+
+                File decrypted = new File(destinationFolder, tempName);
                 decrypt(input, decrypted);
             } else {
                 System.out.println("Invalid command");
